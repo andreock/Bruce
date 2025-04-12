@@ -40,7 +40,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////
     // Operations
     /////////////////////////////////////////////////////////////////////////////////////
-    int read();
+    int read(int cardBaudRate = PN532_MIFARE_ISO14443A);
     int clone();
     int erase();
     int write();
@@ -74,4 +74,5 @@ private:
 
     int erase_data_blocks();
     int write_ndef_blocks();
+    String hextostr(uint8_t *data, uint8_t len, char separator = ' ');
 };

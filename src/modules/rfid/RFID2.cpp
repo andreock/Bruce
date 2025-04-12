@@ -40,7 +40,7 @@ bool RFID2::PICC_IsNewCardPresent() {
     return bl_result;
 }
 
-int RFID2::read() {
+int RFID2::read(int cardBaudRate) {
     pageReadStatus = FAILURE;
 
     if (!PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial()) return TAG_NOT_PRESENT;

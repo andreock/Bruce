@@ -157,11 +157,17 @@ void TagOMatic::display_banner() {
 
 void TagOMatic::dump_card_details() {
     padprintln("Device type: " + _rfid->printableUID.picc_type);
-    padprintln("UID: " + _rfid->printableUID.uid);
-    padprintln("ATQA: " + _rfid->printableUID.atqa);
-    padprintln("SAK: " + _rfid->printableUID.sak);
-    if (_rfid->pageReadStatus != RFIDInterface::SUCCESS)
-        padprintln("[!] " + _rfid->statusMessage(_rfid->pageReadStatus));
+    if (_rfid->printableUID.picc_type != "FeliCa") {
+        padprintln("UID: " + _rfid->printableUID.uid);
+        padprintln("ATQA: " + _rfid->printableUID.atqa);
+        padprintln("SAK: " + _rfid->printableUID.sak);
+        if (_rfid->pageReadStatus != RFIDInterface::SUCCESS)
+            padprintln("[!] " + _rfid->statusMessage(_rfid->pageReadStatus));
+    } else {
+        padprintln("IDm: " + _rfid->printableUID.uid);
+        padprintln("PMm: " + _rfid->printableUID.sak);
+        padprintln("Sys code: " + _rfid->printableUID.atqa);
+    }
 }
 
 void TagOMatic::dump_ndef_details() {
@@ -187,7 +193,13 @@ void TagOMatic::dump_scan_results() {
 void TagOMatic::read_card() {
     if (millis() - _lastReadTime < 2000) return;
 
-    if (_rfid->read() != RFIDInterface::SUCCESS) return;
+    if (_rfid->read() != RFIDInterface::SUCCESS) {
+        if (bruceConfig.rfidModule != M5_RFID2_MODULE) { // Read felica if module is PN532
+            if (_rfid->read(1) != RFIDInterface::SUCCESS) return;
+        } else {
+            return;
+        }
+    }
 
     Serial.print("Tag read status: ");
     Serial.println(_rfid->statusMessage(_rfid->pageReadStatus));

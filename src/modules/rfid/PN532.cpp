@@ -27,17 +27,40 @@ bool PN532::begin() {
     return i2c_check || versiondata;
 }
 
-int PN532::read() {
+String PN532::hextostr(uint8_t *data, uint8_t len, char separator) {
+    String str = "";
+    for (size_t i = 0; i < len; i++) { str += String(data[i], HEX) + separator; }
+    return str;
+}
+
+int PN532::read(int cardBaudRate) {
     pageReadStatus = FAILURE;
 
-    if (!nfc.startPassiveTargetIDDetection()) return TAG_NOT_PRESENT;
-    if (!nfc.readDetectedPassiveTargetID()) return FAILURE;
+    bool felica = false;
+    if (cardBaudRate == PN532_MIFARE_ISO14443A) {
+        if (!nfc.startPassiveTargetIDDetection(cardBaudRate)) return TAG_NOT_PRESENT;
+        if (!nfc.readDetectedPassiveTargetID()) return FAILURE;
+        displayInfo("Reading data blocks...");
+        pageReadStatus = read_data_blocks();
+        pageReadSuccess = pageReadStatus == SUCCESS;
+        format_data();
+        set_uid();
+    } else {
+        uint16_t sys_code = 0xFFFF; // Default sys code for FeliCa
+        uint8_t req_code = 0x01;    // Default request code for FeliCa
+        uint8_t idm[8];
+        uint8_t pmm[8];
+        uint16_t sys_code_res;
+        if (!nfc.felica_Polling(sys_code, req_code, idm, pmm, &sys_code_res)) { return TAG_NOT_PRESENT; }
 
-    displayInfo("Reading data blocks...");
-    pageReadStatus = read_data_blocks();
-    pageReadSuccess = pageReadStatus == SUCCESS;
-    format_data();
-    set_uid();
+        // Reuse uid-sak-atqa to save memory
+        printableUID.picc_type = "FeliCa";
+        printableUID.uid = hextostr(idm, 8);
+        printableUID.sak = hextostr(pmm, 8);
+        printableUID.atqa = String(sys_code_res, HEX);
+        pageReadSuccess = true;
+    }
+
     return SUCCESS;
 }
 
