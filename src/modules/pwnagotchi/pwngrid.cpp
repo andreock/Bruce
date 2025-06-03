@@ -10,7 +10,7 @@ Thanks to @bmorcelli (Pirata) for his help doing a better code.
 */
 
 #include "pwngrid.h"
-#include "../wifi/sniffer.h"
+#include "../wifi/wifi_sniffer.h"
 
 uint8_t pwngrid_friends_tot = 0;
 std::vector<pwngrid_peer> pwngrid_peers;
@@ -232,7 +232,9 @@ void getMAC(char *addr, uint8_t *data, uint16_t offset) {
 }
 
 void pwnSnifferCallback(void *buf, wifi_promiscuous_pkt_type_t type) {
-    sniffer(buf, type);
+    WiFiSniffer sniffer = WiFiSniffer();
+    sniffer.startSniffer();
+
     wifi_promiscuous_pkt_t *snifferPacket = (wifi_promiscuous_pkt_t *)buf;
     WifiMgmtHdr *frameControl = (WifiMgmtHdr *)snifferPacket->payload;
 

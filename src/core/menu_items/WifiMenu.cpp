@@ -11,8 +11,8 @@
 #include "modules/wifi/dpwo.h"
 #include "modules/wifi/evil_portal.h"
 #include "modules/wifi/scan_hosts.h"
-#include "modules/wifi/sniffer.h"
 #include "modules/wifi/wifi_atks.h"
+#include "modules/wifi/wifi_sniffer.h"
 
 #ifndef LITE_VERSION
 #include "modules/pwnagotchi/pwnagotchi.h"
@@ -62,7 +62,11 @@ void WifiMenu::optionsMenu() {
     options.push_back({"TelNET", telnet_setup});
     options.push_back({"SSH", lambdaHelper(ssh_setup, String(""))});
     options.push_back({"DPWO", dpwo_setup});
-    options.push_back({"Raw Sniffer", sniffer_setup});
+    options.push_back({"Raw Sniffer", [=]() {
+                           WiFiSniffer sniffer = WiFiSniffer();
+                           sniffer.setupDirectory("/BrucePCAP/handshakes");
+                           sniffer.sniffer_setup();
+                       }});
     options.push_back({"Scan Hosts", [=]() {
                            bool doScan = true;
                            if (!wifiConnected) doScan = wifiConnectMenu();

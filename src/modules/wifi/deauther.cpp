@@ -23,7 +23,6 @@
 #include <lwip/sockets.h>
 #include <lwip/sys.h>
 #include <lwip/timeouts.h>
-#include <modules/wifi/sniffer.h> //use PCAP file saving functions
 #include <sstream>
 
 // Função para obter o MAC do gateway

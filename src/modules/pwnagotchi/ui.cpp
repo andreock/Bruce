@@ -8,7 +8,7 @@ Thanks to @bmorcelli for his help doing a better code.
 */
 
 #include "ui.h"
-#include "../wifi/sniffer.h"
+#include "../wifi/wifi_sniffer.h"
 
 #define ROW_SIZE 40
 #define PADDING 10
